@@ -24,11 +24,6 @@ export async function job(welcome = false) {
     trackingRequests.forEach(async r => {
         const cars = await getCars(r.request, r.searchValue)
 
-        if(welcome) {
-            emailService.sendEmail(await CompressService.compress(cars) || "", r.email, cars, welcome) 
-            return;
-        }
-
         const changedCars = cars.filter(c => {
             const lastPrice = priceService.getLastPrice(c.id);
 
@@ -42,7 +37,10 @@ export async function job(welcome = false) {
             return false;
         })
 
-        if(changedCars.length !== 0) { 
+        if(welcome) {
+            emailService.sendEmail(await CompressService.compress(cars) || "", r.email, cars, welcome) 
+        }
+        else if(changedCars.length !== 0) { 
             emailService.sendEmail(await CompressService.compress(changedCars) || "", r.email, changedCars, welcome) 
         }
     })
